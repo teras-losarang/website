@@ -19,17 +19,23 @@
 
 <script>
     $(function() {
+        $("#defaultDatatable").DataTable({
+            scrollX: true
+        })
+
         $(".btn-delete").click(function(e) {
             e.preventDefault();
+            $(".swal2-container .swal2-actions button.swal2-cancel").html("Batal")
 
             let form = $(this).closest("form");
 
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Apa kamu yakin?',
+                text: "Anda tidak akan dapat mengembalikan data ini!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonText: 'Ya, hapus!',
+                cancelmButtonText: 'Batal',
                 customClass: {
                     confirmButton: 'btn btn-danger me-3',
                     cancelButton: 'btn btn-label-secondary'
@@ -42,5 +48,23 @@
             });
         })
     })
+</script>
+<script>
+    (() => {
+        'use strict'
+
+        const forms = document.querySelectorAll('.needs-validation')
+
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
 </script>
 @stack('js')
