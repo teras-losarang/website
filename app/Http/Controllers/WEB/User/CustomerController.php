@@ -5,22 +5,62 @@ namespace App\Http\Controllers\WEB\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class CustomerController extends Controller
 {
+    protected $user, $role;
+
+    public function __construct(User $user, Role $role)
+    {
+        $this->user = $user;
+        $this->role = $role;
+    }
+
     public function index()
     {
-        return view('user.customer.index');
+        $data = [
+            "users" => $this->user->whereHas('roles', function ($query) {
+                $query->where('id', User::CUSTOMER);
+            })->get()
+        ];
+
+        return view('user.customer.index', $data);
     }
 
     public function create()
     {
-        //
+        $data = ["user" => null];
+        return view('user.customer.form', $data);
     }
 
     public function store(Request $request)
     {
-        //
+        DB::beginTransaction();
+
+        $request->validate([
+            "name" => "required",
+            "email" => "required|email|unique:users,email",
+            "password" => "required|min:8|max:255"
+        ]);
+
+        $request->merge([
+            "password" => Hash::make($request->password ?? "password")
+        ]);
+
+        try {
+            $this->user->create($request->all())
+                ->syncRoles($this->role->where("id", $this->user::CUSTOMER)->first());
+
+            DB::commit();
+            return back()->with("success", "Pengguna baru berhasil disimpan.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 
     public function show(User $user)
@@ -28,18 +68,53 @@ class CustomerController extends Controller
         //
     }
 
-    public function edit(User $user)
+    public function edit($id)
     {
-        //
+        $user = $this->user->findOrFail($id);
+
+        return view('user.customer.form', compact("user"));
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
-        //
+        DB::beginTransaction();
+
+        $request->validate([
+            "name" => "required",
+            "email" => [
+                "required",
+                "email",
+                Rule::unique('users')->ignore($id)
+            ],
+        ]);
+
+        $user = $this->user->findOrFail($id);
+
+        try {
+            $user->update($request->all());
+
+            DB::commit();
+            return back()->with("success", "Pengguna berhasil disimpan.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+
+        $user = $this->user->findOrFail($id);
+
+        try {
+            $user->delete();
+
+            DB::commit();
+            return back()->with("success", "Pengguna berhasil dihapus.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 }
