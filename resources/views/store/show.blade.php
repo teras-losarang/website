@@ -16,7 +16,8 @@
 
         <x-row>
             <x-col lg="4" xl="4" md="4" class="mb-3">
-                <img src="{{ asset("storage/$store->thumbnail") }}" alt="{{ $store->name }}" width="100%" height="250">
+                <img src="{{ $store->thumbnail ? asset("storage/$store->thumbnail") : asset($store::DEFAULT_IMAGE) }}"
+                    alt="{{ $store->name }}" width="100%" height="250">
             </x-col>
             <x-col lg="8" xl="8" md="8" class="mb-3">
                 <div class="mb-3">
@@ -52,6 +53,32 @@
                 <th>Harga (per produk)</th>
                 <th>Aksi</th>
             </x-slot:thead>
+            <x-slot:tbody>
+                @foreach ($store->products as $product)
+                    <tr>
+                        <th>{{ $loop->iteration }}</th>
+                        <td>{{ $product->name }}</td>
+                        <td>{{ $product->stock }}</td>
+                        <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
+                        <td nowrap>
+                            <x-button
+                                href="{{ route('web.store.product.edit', ['store' => $store, 'product' => $product]) }}"
+                                size="sm" color="warning me-2">
+                                <x-icon name="fa-solid fa-edit me-2" />
+                                Edit</x-button>
+                            <form
+                                action="{{ route('web.store.product.destroy', ['store' => $store, 'product' => $product]) }}"
+                                method="post" class="d-inline">
+                                @csrf
+                                @method('delete')
+                                <x-button type="submit" size="sm" color="danger btn-delete"> <x-icon
+                                        name="fa-solid fa-trash me-2" />
+                                    Hapus</x-button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </x-slot:tbody>
         </x-table>
     </x-card>
 @endsection

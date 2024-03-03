@@ -34,7 +34,7 @@
                 text: "Anda tidak akan dapat mengembalikan data ini!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
+                confirmButtonText: 'Ya, Hapus!',
                 cancelmButtonText: 'Batal',
                 customClass: {
                     confirmButton: 'btn btn-danger me-3',

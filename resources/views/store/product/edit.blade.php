@@ -15,21 +15,35 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-    <form action="{{ route('web.store.product.store', $store) }}" method="post" class="needs-validation" novalidate
-        enctype="multipart/form-data">
+    <form action="{{ route('web.store.product.update', ['store' => $store, 'product' => $product]) }}" method="post"
+        class="needs-validation" novalidate enctype="multipart/form-data">
         @csrf
+        @method('put')
         <x-card>
             <x-slot:header class="d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">Tambah Produk Baru</h6>
+                <h6 class="card-title mb-0">Edit Produk</h6>
             </x-slot:header>
 
-            <x-input id="name" label="Nama Produk" required :value="old('name')" />
-            <x-input id="price" label="Harga Produk" required :value="old('price')" />
-            <x-input id="stock" type="number" label="Stok Produk" required :value="old('stock')" />
-            <x-textarea label="Deskripsi" id="description" required value="{{ old('description') }}" />
+            <x-input id="name" label="Nama Produk" required :value="old('name') ?? $product->name" />
+            <x-input id="price" label="Harga Produk" required :value="old('price') ?? $product->price" />
+            <x-input id="stock" type="number" label="Stok Produk" required :value="old('stock') ?? $product->stock" />
+            <x-textarea label="Deskripsi" id="description" required
+                value="{{ old('description') ?? $product->description }}" />
             <div>
                 <x-label>Unggah Foto Produk <small class="text-danger">(* foto boleh lebih dari 1)</small></x-label>
-                <x-input id="images[]" accept="image/png, image/jpg, image/jpeg" type="file" multiple required />
+                <x-input id="images[]" accept="image/png, image/jpg, image/jpeg" type="file" multiple />
+                <ul>
+                    @foreach ($product->images as $image)
+                        <li>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ asset("storage/$image->path_file") }}"
+                                    target="_blank">{{ asset("storage/$image->path_file") }}</a>
+                                <a href="{{ route('web.product.delete.image', $image) }}" class="text-danger"><i
+                                        class="fa-solid fa-times"></i></a>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
 
             <x-slot:footer>

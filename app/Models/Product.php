@@ -7,35 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Store extends Model
+class Product extends Model
 {
     use HasFactory;
 
     const ACTIVE = 1;
     const IN_ACTIVE = 0;
 
-    const DEFAULT_IMAGE = "assets/img/ecommerce-images/default.jpg";
-
     protected $fillable = [
-        "user_id",
+        "store_id",
         "name",
         "slug",
         "description",
-        "address",
-        "long",
-        "lat",
-        "thumbnail",
+        "stock",
+        "price",
         "status",
-        "operational_hour"
     ];
 
-    public function user(): HasOne
+    public function store(): HasOne
     {
-        return $this->hasOne(User::class, "id", "user_id");
+        return $this->hasOne(Store::class, "id", "store_id");
     }
 
-    public function products(): HasMany
+    public function images(): HasMany
     {
-        return $this->hasMany(Product::class, "store_id", "id");
+        return $this->hasMany(ProductImage::class, "product_id", "id");
     }
 }

@@ -4,23 +4,26 @@ namespace App\Http\Controllers\WEB;
 
 use App\Enums\Day;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Number;
 use Spatie\Permission\Models\Role;
 
 class StoreController extends Controller
 {
-    protected $store, $user, $role;
+    protected $store, $user, $role, $product;
 
-    public function __construct(Store $store, User $user, Role $role)
+    public function __construct(Store $store, User $user, Role $role, Product $product)
     {
         $this->store = $store;
         $this->user = $user;
         $this->role = $role;
+        $this->product = $product;
     }
 
     public function index()
@@ -179,21 +182,118 @@ class StoreController extends Controller
 
     public function productCreate(Store $store)
     {
+        $data = [
+            "store" => $store
+        ];
+
+        return view("store.product.create", $data);
     }
 
-    public function productStore(Store $store)
+    public function productStore(Request $request, Store $store)
     {
+        DB::beginTransaction();
+
+        $request->validate([
+            "name" => "required",
+            "price" => "required",
+            "stock" => "required|numeric",
+            "description" => "required",
+            "images" => "required|array",
+            "images.*" => "image|mimes:png,jpg,jpeg",
+        ]);
+
+        $request->merge([
+            "slug" => Str::slug("$request->name-" . Str::random(6)),
+            "price" => str_replace(",", "", $request->price),
+            "store_id" => $store->id
+        ]);
+
+        try {
+            $product = $this->product->create($request->except("images"));
+
+            foreach ($request->images as $image) {
+                $product->images()->create([
+                    "path_file" => $image->store("product")
+                ]);
+            }
+
+            DB::commit();
+            return to_route("web.store.show", $store)->with("success", "Produk berhasil disimpan.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 
-    public function productEdit(Store $store)
+    public function productEdit(Store $store, Product $product)
     {
+        $data = [
+            "store" => $store,
+            "product" => $product
+        ];
+
+        return view("store.product.edit", $data);
     }
 
-    public function productUpdate(Store $store)
+    public function productUpdate(Request $request, Store $store, Product $product)
     {
+        DB::beginTransaction();
+
+        $request->validate([
+            "name" => "required",
+            "price" => "required",
+            "stock" => "required|numeric",
+            "description" => "required",
+            "images" => "array",
+            "images.*" => "image|mimes:png,jpg,jpeg",
+        ]);
+
+        if (Str::slug($product->name) != Str::slug($request->name)) {
+            $request->merge([
+                "slug" => Str::slug("$request->name-" . Str::random(6))
+            ]);
+        }
+
+        $request->merge([
+            "price" => str_replace(",", "", $request->price),
+            "store_id" => $store->id
+        ]);
+
+        try {
+            if ($request->images) {
+                foreach ($request->images as $image) {
+                    $product->images()->create([
+                        "path_file" => $image->store("product")
+                    ]);
+                }
+            }
+
+            $product->update($request->except("images"));
+
+            DB::commit();
+            return to_route("web.store.show", $store)->with("success", "Produk berhasil disimpan.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 
-    public function productDestroy(Store $store)
+    public function productDestroy(Store $store, Product $product)
     {
+        DB::beginTransaction();
+
+        try {
+            foreach ($product->images as $image) {
+                Storage::delete($image->path_file);
+            }
+
+            $product->delete();
+
+            DB::commit();
+            return back()->with("success", "Produk berhasil dihapus.");
+        } catch (\Throwable $th) {
+            DB::rollback();
+            dd($th->getMessage());
+        }
     }
 }

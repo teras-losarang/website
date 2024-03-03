@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WEB\DashboardController;
+use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\StoreController;
 use App\Http\Controllers\WEB\User\AdminController;
 use App\Http\Controllers\WEB\User\CourierController;
@@ -41,4 +42,8 @@ Route::name('web.')->group(function () {
     Route::delete('/store/{store}/product/{product}', [StoreController::class, 'productDestroy'])
         ->name('store.product.destroy');
     Route::resource('/store', StoreController::class);
+
+    Route::get('/product/delete-image/{productImage}', [ProductController::class, 'deleteImage'])
+        ->name('product.delete.image');
+    Route::resource('/product', ProductController::class);
 });
