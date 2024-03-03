@@ -19,7 +19,7 @@
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
-            <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
+            <i class="ti ti-menu-2 d-none d-xl-block ti-sm align-middle"></i>
             <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
         </a>
     </div>
@@ -47,9 +47,9 @@
         </li>
         <li @class([
             'menu-item',
-            'active' => request()->route()->named('web.dashboard.index'),
+            'active' => explode('/', request()->path())[0] == 'store',
         ])>
-            <a href="{{ route('web.dashboard.index') }}" class="menu-link">
+            <a href="{{ route('web.store.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-building-store"></i>
                 <div data-i18n="Toko">Toko</div>
             </a>

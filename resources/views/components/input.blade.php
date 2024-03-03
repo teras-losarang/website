@@ -14,17 +14,19 @@
 ])
 
 @php
-    $attributes = $attributes->class(['form-control', "form-control-$size" => $size, 'is-invalid' => $errors->has($id)])->merge([
-        'type' => $type,
-        'name' => $id,
-        'id' => $id,
-        'required' => $required,
-        'placeholder' => $placeholder,
-        'value' => $value,
-        'autofocus' => $autofocus,
-        'disabled' => $disabled,
-        'readonly' => $readonly,
-    ]);
+    $attributes = $attributes
+        ->class(['form-control', "form-control-$size" => $size, 'is-invalid' => $errors->has($id)])
+        ->merge([
+            'type' => $type,
+            'name' => $id,
+            'id' => $id,
+            'required' => $required,
+            'placeholder' => $placeholder,
+            'value' => $value,
+            'autofocus' => $autofocus,
+            'disabled' => $disabled,
+            'readonly' => $readonly,
+        ]);
 @endphp
 
 <div @class([$margin])>
