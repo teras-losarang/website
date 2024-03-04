@@ -17,7 +17,8 @@
         <x-row>
             <x-col lg="4" xl="4" md="4" class="mb-3">
                 <img src="{{ $store->thumbnail ? asset("storage/$store->thumbnail") : asset($store::DEFAULT_IMAGE) }}"
-                    alt="{{ $store->name }}" width="100%" height="250">
+                    onerror="this.src=null; this.src='{{ asset($store::DEFAULT_IMAGE) }}'" alt="{{ $store->name }}"
+                    width="100%" height="250">
             </x-col>
             <x-col lg="8" xl="8" md="8" class="mb-3">
                 <div class="mb-3">
@@ -51,6 +52,7 @@
                 <th>Nama Produk</th>
                 <th>Stok</th>
                 <th>Harga (per produk)</th>
+                <th>Total Penjualan</th>
                 <th>Aksi</th>
             </x-slot:thead>
             <x-slot:tbody>
@@ -59,6 +61,7 @@
                         <th>{{ $loop->iteration }}</th>
                         <td>{{ $product->name }}</td>
                         <td>{{ $product->stock }}</td>
+                        <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td nowrap>
                             <x-button

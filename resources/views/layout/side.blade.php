@@ -38,15 +38,6 @@
         </li>
         <li @class([
             'menu-item',
-            'active' => request()->route()->named('web.dashboard.index'),
-        ])>
-            <a href="{{ route('web.dashboard.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-category"></i>
-                <div data-i18n="Kategori">Kategori</div>
-            </a>
-        </li>
-        <li @class([
-            'menu-item',
             'active' => explode('/', request()->path())[0] == 'store',
         ])>
             <a href="{{ route('web.store.index') }}" class="menu-link">
@@ -56,9 +47,9 @@
         </li>
         <li @class([
             'menu-item',
-            'active' => request()->route()->named('web.dashboard.index'),
+            'active' => explode('/', request()->path())[0] == 'product',
         ])>
-            <a href="{{ route('web.dashboard.index') }}" class="menu-link">
+            <a href="{{ route('web.product.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-box"></i>
                 <div data-i18n="Produk">Produk</div>
             </a>

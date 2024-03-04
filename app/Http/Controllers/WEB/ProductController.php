@@ -11,9 +11,20 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    protected $product;
+
+    public function __construct(Product $product)
+    {
+        $this->product = $product;
+    }
+
     public function index()
     {
-        //
+        $data = [
+            "products" => $this->product->all()
+        ];
+
+        return view('product.index', $data);
     }
 
     public function create()
