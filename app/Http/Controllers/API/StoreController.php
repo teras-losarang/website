@@ -124,7 +124,7 @@ class StoreController extends Controller
             $store->update($request->all());
 
             DB::commit();
-            return TerasMessage::created("$store->name has been updated!");
+            return TerasMessage::success("$store->name has been updated!");
         } catch (\Throwable $th) {
             DB::rollback();
             return TerasMessage::error($th->getMessage());
@@ -148,7 +148,7 @@ class StoreController extends Controller
             $store->delete();
 
             DB::commit();
-            return TerasMessage::created("$store->name has been deleted!");
+            return TerasMessage::success("$store->name has been deleted!");
         } catch (\Throwable $th) {
             DB::rollback();
             return TerasMessage::error($th->getMessage());
