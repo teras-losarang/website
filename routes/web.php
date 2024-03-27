@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WEB\DashboardController;
+use App\Http\Controllers\WEB\ModulController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\StoreController;
 use App\Http\Controllers\WEB\User\AdminController;
@@ -46,4 +47,10 @@ Route::name('web.')->group(function () {
     Route::get('/product/delete-image/{productImage}', [ProductController::class, 'deleteImage'])
         ->name('product.delete.image');
     Route::resource('/product', ProductController::class);
+
+    Route::put('/modul/update-status/{modul}', [ModulController::class, 'updateStatus'])
+        ->name('modul.update.status');
+    Route::get('/modul/update-sort/{currentModul}/{nextModul}', [ModulController::class, 'updateSort'])
+        ->name('modul.update.sort');
+    Route::resource('/modul', ModulController::class);
 });

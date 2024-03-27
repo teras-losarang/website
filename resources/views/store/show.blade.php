@@ -50,9 +50,9 @@
             <x-slot:thead>
                 <th>No</th>
                 <th>Nama Produk</th>
+                <th>Kategori Produk</th>
                 <th>Stok</th>
                 <th>Harga (per produk)</th>
-                <th>Total Penjualan</th>
                 <th>Aksi</th>
             </x-slot:thead>
             <x-slot:tbody>
@@ -60,8 +60,14 @@
                     <tr>
                         <th>{{ $loop->iteration }}</th>
                         <td>{{ $product->name }}</td>
+                        <td>
+                            <ul class="ps-2">
+                                @foreach ($product->categories as $category)
+                                    <li>{{ $category->modul->name }}</li>
+                                @endforeach
+                            </ul>
+                        </td>
                         <td>{{ $product->stock }}</td>
-                        <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td nowrap>
                             <x-button

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Sign;
+namespace App\Http\Requests\Order;
 
 use App\Facades\TerasMessage;
 use Illuminate\Contracts\Validation\Validator;
@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-class InRequest extends FormRequest
+class CreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,12 @@ class InRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required|min:8|max:255',
+            "address_id" => "required|exists:addresses,id",
+            "cart_id" => "required|exists:carts,id",
+            "shipping_cost" => "required|numeric",
+            "service_fee" => "required|numeric",
+            "total_cost" => "required|numeric",
+            "payment_method" => "required",
         ];
     }
 

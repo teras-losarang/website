@@ -4,6 +4,7 @@ namespace App\Http\Controllers\WEB;
 
 use App\Enums\Day;
 use App\Http\Controllers\Controller;
+use App\Models\Modul;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
@@ -16,14 +17,15 @@ use Spatie\Permission\Models\Role;
 
 class StoreController extends Controller
 {
-    protected $store, $user, $role, $product;
+    protected $store, $user, $role, $product, $modul;
 
-    public function __construct(Store $store, User $user, Role $role, Product $product)
+    public function __construct(Store $store, User $user, Role $role, Product $product, Modul $modul)
     {
         $this->store = $store;
         $this->user = $user;
         $this->role = $role;
         $this->product = $product;
+        $this->modul = $modul;
     }
 
     public function index()
@@ -154,7 +156,7 @@ class StoreController extends Controller
             $store->update($request->all());
 
             DB::commit();
-            return back()->with("success", "Toko berhasil disimpan.");
+            return redirect(route('web.store.show', $store->id))->with("success", "Toko berhasil disimpan.");
         } catch (\Throwable $th) {
             DB::rollback();
             dd($th->getMessage());
@@ -183,7 +185,8 @@ class StoreController extends Controller
     public function productCreate(Store $store)
     {
         $data = [
-            "store" => $store
+            "store" => $store,
+            "moduls" => $this->modul->query()->where('status', $this->modul::ACTIVE)->whereNot('id', $this->modul::SEE_MORE)->get()
         ];
 
         return view("store.product.create", $data);
@@ -200,6 +203,8 @@ class StoreController extends Controller
             "description" => "required",
             "images" => "required|array",
             "images.*" => "image|mimes:png,jpg,jpeg",
+            "modul_ids" => "required|array",
+            "modul_ids.*" => "exists:moduls,id",
         ]);
 
         $request->merge([
@@ -210,6 +215,12 @@ class StoreController extends Controller
 
         try {
             $product = $this->product->create($request->except("images"));
+
+            foreach ($request->modul_ids as $modulId) {
+                $product->categories()->create([
+                    "modul_id" => $modulId
+                ]);
+            }
 
             foreach ($request->images as $image) {
                 $product->images()->create([
@@ -229,7 +240,8 @@ class StoreController extends Controller
     {
         $data = [
             "store" => $store,
-            "product" => $product
+            "product" => $product,
+            "moduls" => $this->modul->query()->where('status', $this->modul::ACTIVE)->whereNot('id', $this->modul::SEE_MORE)->get()
         ];
 
         return view("store.product.edit", $data);
@@ -246,6 +258,8 @@ class StoreController extends Controller
             "description" => "required",
             "images" => "array",
             "images.*" => "image|mimes:png,jpg,jpeg",
+            "modul_ids" => "required|array",
+            "modul_ids.*" => "exists:moduls,id",
         ]);
 
         if (Str::slug($product->name) != Str::slug($request->name)) {
@@ -260,6 +274,14 @@ class StoreController extends Controller
         ]);
 
         try {
+            $product->categories()->delete();
+
+            foreach ($request->modul_ids as $modulId) {
+                $product->categories()->create([
+                    "modul_id" => $modulId
+                ]);
+            }
+
             if ($request->images) {
                 foreach ($request->images as $image) {
                     $product->images()->create([

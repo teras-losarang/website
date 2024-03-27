@@ -2,6 +2,9 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/tagify/tagify.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}" />
 @endpush
 
 @section('content')
@@ -25,6 +28,13 @@
             </x-slot:header>
 
             <x-input id="name" label="Nama Produk" required :value="old('name') ?? $product->name" />
+            <x-select id="modul_ids[]" label="Kategori Produk" multiple class="select2" required>
+                @foreach ($moduls as $modul)
+                    <option value="{{ $modul->id }}"
+                        {{ in_array($modul->id, $product->categories->pluck('modul_id')->toArray()) ? 'selected' : '' }}>
+                        {{ $modul->name }}</option>
+                @endforeach
+            </x-select>
             <x-input id="price" label="Harga Produk" required :value="old('price') ?? $product->price" />
             <x-input id="stock" type="number" label="Stok Produk" required :value="old('stock') ?? $product->stock" />
             <x-textarea label="Deskripsi" id="description" required
@@ -57,11 +67,22 @@
 @push('js')
     <script src="{{ asset('assets/vendor/libs/cleavejs/cleave.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/tagify/tagify.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/bootstrap-select/bootstrap-select.js') }}"></script>
     <script>
         $(function() {
             new Cleave($("#price"), {
                 numeral: true,
                 numeralThousandsGroupStyle: 'thousand'
+            });
+
+            $(".select2").wrap('<div class="position-relative"></div>').select2({
+                placeholder: '',
+                dropdownParent: $(".select2").parent(),
+                containerCssClass: function(e) {
+                    return $(".select2").attr('required') ? 'is-invalid' : 'is-valid';
+                }
             });
         })
     </script>

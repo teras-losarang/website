@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\FavoriteController;
+use App\Http\Controllers\API\ModulController;
+use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\PurchaseController;
 use App\Http\Controllers\API\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,9 +29,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('sign')->group(function () {
     Route::post('in', [AuthController::class, 'in']);
     Route::post('up', [AuthController::class, 'up']);
-    Route::post('out', [AuthController::class, 'out']);
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('me', [AuthController::class, 'me']);
+        Route::post('out', [AuthController::class, 'out']);
+    });
 });
 
-Route::delete('/product/delete-image/{productImage}', [ProductController::class, 'deleteImage']);
-Route::apiResource('product', ProductController::class);
-Route::apiResource('/store', StoreController::class);
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('modul', ModulController::class);
+
+    Route::post('product/favorite/{id}', [ProductController::class, 'favorite']);
+    Route::delete('product/delete-image/{productImage}', [ProductController::class, 'deleteImage']);
+    Route::apiResource('product', ProductController::class);
+
+    Route::apiResource('cart', CartController::class);
+    Route::apiResource('store', StoreController::class);
+    Route::apiResource('favorite', FavoriteController::class);
+    Route::apiResource('purchase', PurchaseController::class);
+    Route::apiResource('order', OrderController::class);
+});

@@ -23,6 +23,8 @@
                         <td>{{ $store->user->name }}</td>
                         <td>{{ Str::limit($store->description, 100, '...') }}</td>
                         <td nowrap>
+                            <x-button href="{{ route('web.store.product.create', $store) }}" color="primary me-2"
+                                size="sm"><x-icon name="fa-solid fa-plus me-2" /> Tambah Produk</x-button>
                             <x-button href="{{ route('web.store.show', $store) }}" size="sm" color="info me-2">
                                 <x-icon name="fa-solid fa-eye me-2" />
                                 Detail</x-button>

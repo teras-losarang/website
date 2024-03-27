@@ -66,5 +66,13 @@
             }, false)
         })
     })()
+
+    function filterColumn(val, cursor, i) {
+        if (i != undefined) {
+            $(cursor).DataTable().column(i).search(val, false, true).draw();
+        } else {
+            $(cursor).DataTable().search(val, false, true).draw();
+        }
+    }
 </script>
 @stack('js')

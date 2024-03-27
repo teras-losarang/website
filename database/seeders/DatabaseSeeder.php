@@ -33,5 +33,9 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             "email" => "admin@mailinator.com"
         ])->syncRoles(Role::findById(User::ADMIN, 'api')->first());
+
+        $this->call([
+            ModulSeeder::class
+        ]);
     }
 }

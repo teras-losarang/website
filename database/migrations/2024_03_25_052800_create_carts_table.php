@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -13,17 +14,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stores', function (Blueprint $table) {
+        Schema::create('carts', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Store::class)->references('id')->on('stores')->cascadeOnDelete();
             $table->foreignIdFor(User::class)->references('id')->on('users')->cascadeOnDelete();
-            $table->string("name")->nullable();
-            $table->string("slug")->nullable();
-            $table->text("description")->nullable();
-            $table->text("address")->nullable();
-            $table->string("longlat")->nullable();
-            $table->string("thumbnail")->nullable();
-            $table->json("operational_hour")->nullable();
-            $table->tinyInteger("status")->default(Store::ACTIVE);
             $table->timestamps();
         });
     }
@@ -33,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stores');
+        Schema::dropIfExists('carts');
     }
 };

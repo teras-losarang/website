@@ -27,6 +27,9 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Home</span>
+        </li>
         <li @class([
             'menu-item',
             'active' => request()->route()->named('web.dashboard.index'),
@@ -35,6 +38,9 @@
                 <i class="menu-icon tf-icons ti ti-dashboard"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
+        </li>
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Data Master</span>
         </li>
         <li @class([
             'menu-item',
@@ -47,12 +53,24 @@
         </li>
         <li @class([
             'menu-item',
+            'active' => request()->route()->named('web.modul.index'),
+        ])>
+            <a href="{{ route('web.modul.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-brand-pagekit"></i>
+                <div data-i18n="Modul">Modul</div>
+            </a>
+        </li>
+        <li @class([
+            'menu-item',
             'active' => explode('/', request()->path())[0] == 'product',
         ])>
             <a href="{{ route('web.product.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-box"></i>
                 <div data-i18n="Produk">Produk</div>
             </a>
+        </li>
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Sistem</span>
         </li>
         <li @class([
             'menu-item',

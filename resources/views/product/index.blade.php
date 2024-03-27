@@ -9,6 +9,7 @@
             <x-slot:thead>
                 <th>No</th>
                 <th>Nama Produk</th>
+                <th>Kategori Produk</th>
                 <th>Nama Toko</th>
                 <th>Harga</th>
                 <th>Stok</th>
@@ -19,6 +20,13 @@
                     <tr>
                         <th>{{ $loop->iteration }}</th>
                         <td>{{ $product->name }}</td>
+                        <td>
+                            <ul class="ps-2">
+                                @foreach ($product->categories as $category)
+                                    <li>{{ $category->modul->name }}</li>
+                                @endforeach
+                            </ul>
+                        </td>
                         <td><a href="{{ route('web.store.show', $product->store) }}">{{ $product->store->name }}</a></td>
                         <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td>{{ $product->stock }}</td>

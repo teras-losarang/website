@@ -10,11 +10,13 @@
 ])
 
 @php
-    $attributes = $attributes->class(['form-select', "form-select-$size" => $size, 'is-invalid' => $errors->has($id)])->merge([
-        'name' => $id,
-        'id' => $id,
-        'required' => $required,
-    ]);
+    $attributes = $attributes
+        ->class(['form-select', "form-select-$size" => $size, 'is-invalid' => $errors->has($id)])
+        ->merge([
+            'name' => $id,
+            'id' => $id,
+            'required' => $required,
+        ]);
 @endphp
 
 <div @class([$margin])>
