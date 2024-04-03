@@ -8,6 +8,7 @@ use App\Http\Requests\Store\CreateRequest;
 use App\Http\Requests\Store\UpdateRequest;
 use App\Http\Resources\Store\StoreCollection;
 use App\Http\Resources\Store\StoreDetail;
+use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
@@ -17,11 +18,12 @@ use Illuminate\Support\Facades\Storage;
 
 class StoreController extends Controller
 {
-    protected $store;
+    protected $store, $product;
 
-    public function __construct(Store $store)
+    public function __construct(Store $store, Product $product)
     {
         $this->store = $store;
+        $this->product = $product;
     }
 
     public function index(Request $request)
@@ -33,6 +35,30 @@ class StoreController extends Controller
             ->paginate($request->per_page);
 
         return new StoreCollection($stores);
+    }
+
+
+    public function search(Request $request)
+    {
+        $stores = $this->store->query();
+        $products = $this->product->query();
+
+        if ($request->has('search')) {
+            $stores->where('name', 'like', "%$request->search%");
+            $products->where('name', 'like', "%$request->search%");
+        }
+
+        $stores = $stores->get();
+        $products = $products->get();
+
+        $data = [];
+        foreach ($stores as $store) {
+            $data[] = [
+                "store_name" => $store->name
+            ];
+        }
+
+        dd($data);
     }
 
     public function store(CreateRequest $request)

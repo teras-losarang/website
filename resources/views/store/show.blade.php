@@ -27,7 +27,7 @@
                 </div>
                 <div class="mb-3">
                     <label>Nama Toko</label>
-                    <h5>{{ $store->name }}</h5>
+                    <h5>{{ $store->name }} <small class="fw-normal">({{ $store->tags }})</small></h5>
                 </div>
                 <div class="mb-3">
                     <label>Alamat Toko</label>
@@ -50,7 +50,6 @@
             <x-slot:thead>
                 <th>No</th>
                 <th>Nama Produk</th>
-                <th>Kategori Produk</th>
                 <th>Stok</th>
                 <th>Harga (per produk)</th>
                 <th>Aksi</th>
@@ -60,13 +59,6 @@
                     <tr>
                         <th>{{ $loop->iteration }}</th>
                         <td>{{ $product->name }}</td>
-                        <td>
-                            <ul class="ps-2">
-                                @foreach ($product->categories as $category)
-                                    <li>{{ $category->modul->name }}</li>
-                                @endforeach
-                            </ul>
-                        </td>
                         <td>{{ $product->stock }}</td>
                         <td>Rp {{ Number::format($product->price, locale: 'id') }}</td>
                         <td nowrap>

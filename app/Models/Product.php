@@ -22,6 +22,7 @@ class Product extends Model
         "stock",
         "price",
         "status",
+        "enable_variant",
     ];
 
     public function store(): HasOne
@@ -34,8 +35,8 @@ class Product extends Model
         return $this->hasMany(ProductImage::class, "product_id", "id");
     }
 
-    public function categories(): HasMany
+    public function variants(): HasMany
     {
-        return $this->hasMany(ProductCategory::class, 'product_id', 'id');
+        return $this->hasMany(ProductVariant::class, 'product_id', 'id');
     }
 }

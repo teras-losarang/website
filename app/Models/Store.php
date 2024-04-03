@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Store extends Model
 {
@@ -26,7 +27,8 @@ class Store extends Model
         "lat",
         "thumbnail",
         "status",
-        "operational_hour"
+        "operational_hour",
+        "tags"
     ];
 
     public function user(): HasOne
@@ -37,5 +39,10 @@ class Store extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, "store_id", "id");
+    }
+
+    public function tags(): MorphMany
+    {
+        return $this->morphMany(Tag::class, 'taggable');
     }
 }

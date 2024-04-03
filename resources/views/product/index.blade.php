@@ -22,9 +22,12 @@
                         <td>{{ $product->name }}</td>
                         <td>
                             <ul class="ps-2">
-                                @foreach ($product->categories as $category)
-                                    <li>{{ $category->modul->name }}</li>
-                                @endforeach
+                                @forelse ($product->variants as $variant)
+                                    <li>{{ $variant->name }}</li>
+
+                                @empty
+                                    -
+                                @endforelse
                             </ul>
                         </td>
                         <td><a href="{{ route('web.store.show', $product->store) }}">{{ $product->store->name }}</a></td>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Modul;
 use App\Models\Product;
 use App\Models\Store;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -17,15 +18,16 @@ use Spatie\Permission\Models\Role;
 
 class StoreController extends Controller
 {
-    protected $store, $user, $role, $product, $modul;
+    protected $store, $user, $role, $product, $modul, $tag;
 
-    public function __construct(Store $store, User $user, Role $role, Product $product, Modul $modul)
+    public function __construct(Store $store, User $user, Role $role, Product $product, Modul $modul, Tag $tag)
     {
         $this->store = $store;
         $this->user = $user;
         $this->role = $role;
         $this->product = $product;
         $this->modul = $modul;
+        $this->tag = $tag;
     }
 
     public function index()
@@ -43,7 +45,8 @@ class StoreController extends Controller
             "users" => $this->user->whereHas('roles', function ($query) {
                 $query->where('id', User::CUSTOMER);
             })->doesntHave('store')->get(),
-            "days" => Day::get()
+            "days" => Day::get(),
+            "tags" => $this->tag->where('taggable_type', $this->tag::STORE)->pluck('name')->toArray()
         ];
 
         return view('store.create', $data);
@@ -56,9 +59,19 @@ class StoreController extends Controller
         $request->validate([
             "user_id" => "required|exists:users,id",
             "name" => "required",
+            "tags" => "required",
             "address" => "required",
             "description" => "required",
             "file_thumbnail" => "image|mimes:png,jpg,jpeg",
+        ]);
+
+        $tags = [];
+        foreach (json_decode($request->tags) as $tag) {
+            $tags[] = $tag->value;
+        }
+
+        $request->merge([
+            'tags' => implode(', ', $tags)
         ]);
 
         $operationalHour = [];
@@ -83,7 +96,15 @@ class StoreController extends Controller
                 ]);
             }
 
-            $this->store->create($request->all());
+            $store = $this->store->create($request->all());
+            foreach ($tags as $tag) {
+                $tagExists = $this->tag->where('taggable_type', $this->tag::STORE)->where('name', $tag)->first();
+                if (!$tagExists) {
+                    $store->tags()->create([
+                        'name' => $tag
+                    ]);
+                }
+            }
 
             DB::commit();
             return to_route("web.store.index")->with("success", "Toko baru berhasil disimpan.");
@@ -106,6 +127,7 @@ class StoreController extends Controller
     {
         $data = [
             "store" => $store,
+            "tags" => $this->tag->where('taggable_type', $this->tag::STORE)->pluck('name')->toArray()
         ];
 
         return view('store.edit', $data);
@@ -118,8 +140,18 @@ class StoreController extends Controller
         $request->validate([
             "name" => "required",
             "address" => "required",
+            "tags" => "required",
             "description" => "required",
             "file_thumbnail" => "image|mimes:png,jpg,jpeg",
+        ]);
+
+        $tags = [];
+        foreach (json_decode($request->tags) as $tag) {
+            $tags[] = $tag->value;
+        }
+
+        $request->merge([
+            'tags' => implode(', ', $tags)
         ]);
 
         $operationalHour = [];
@@ -155,6 +187,15 @@ class StoreController extends Controller
 
             $store->update($request->all());
 
+            foreach ($tags as $tag) {
+                $tagExists = $this->tag->where('taggable_type', $this->tag::STORE)->where('name', $tag)->first();
+                if (!$tagExists) {
+                    $store->tags()->create([
+                        'name' => $tag
+                    ]);
+                }
+            }
+
             DB::commit();
             return redirect(route('web.store.show', $store->id))->with("success", "Toko berhasil disimpan.");
         } catch (\Throwable $th) {
@@ -186,7 +227,7 @@ class StoreController extends Controller
     {
         $data = [
             "store" => $store,
-            "moduls" => $this->modul->query()->where('status', $this->modul::ACTIVE)->whereNot('id', $this->modul::SEE_MORE)->get()
+            "tags" => $this->tag->where('taggable_type', $this->tag::PRODUCT)->pluck('name')->toArray()
         ];
 
         return view("store.product.create", $data);
@@ -203,8 +244,6 @@ class StoreController extends Controller
             "description" => "required",
             "images" => "required|array",
             "images.*" => "image|mimes:png,jpg,jpeg",
-            "modul_ids" => "required|array",
-            "modul_ids.*" => "exists:moduls,id",
         ]);
 
         $request->merge([
@@ -216,16 +255,20 @@ class StoreController extends Controller
         try {
             $product = $this->product->create($request->except("images"));
 
-            foreach ($request->modul_ids as $modulId) {
-                $product->categories()->create([
-                    "modul_id" => $modulId
-                ]);
-            }
-
             foreach ($request->images as $image) {
                 $product->images()->create([
                     "path_file" => $image->store("product")
                 ]);
+            }
+
+            if ($request->has('variant')) {
+                foreach ($request->variant as $variant) {
+                    if ($variant['name']) {
+                        $product->variants()->create(array_merge($variant, [
+                            "price" => str_replace(",", "", $variant['price'])
+                        ]));
+                    }
+                }
             }
 
             DB::commit();
@@ -258,8 +301,6 @@ class StoreController extends Controller
             "description" => "required",
             "images" => "array",
             "images.*" => "image|mimes:png,jpg,jpeg",
-            "modul_ids" => "required|array",
-            "modul_ids.*" => "exists:moduls,id",
         ]);
 
         if (Str::slug($product->name) != Str::slug($request->name)) {
@@ -274,19 +315,23 @@ class StoreController extends Controller
         ]);
 
         try {
-            $product->categories()->delete();
-
-            foreach ($request->modul_ids as $modulId) {
-                $product->categories()->create([
-                    "modul_id" => $modulId
-                ]);
-            }
-
             if ($request->images) {
                 foreach ($request->images as $image) {
                     $product->images()->create([
                         "path_file" => $image->store("product")
                     ]);
+                }
+            }
+
+            if ($request->has('variant')) {
+                $product->variants()->delete();
+
+                foreach ($request->variant as $variant) {
+                    if ($variant['name']) {
+                        $product->variants()->create(array_merge($variant, [
+                            "price" => str_replace(",", "", $variant['price'])
+                        ]));
+                    }
                 }
             }
 

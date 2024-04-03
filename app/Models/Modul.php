@@ -19,9 +19,4 @@ class Modul extends Model
     const SEE_MORE = 1;
 
     protected $guarded = [''];
-
-    public function productCategories(): HasMany
-    {
-        return $this->hasMany(ProductCategory::class, 'modul_id', 'id');
-    }
 }

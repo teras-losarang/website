@@ -23,12 +23,13 @@ class ProductDetail extends JsonResource
                 "name" => $product->store->name,
                 "customer" => $product->store->user->name,
             ],
-            "category" => $this->getCategory($product->categories),
+            "variants" => $this->variants($product->variants),
             "name" => $product->name,
             "slug" => $product->slug,
             "description" => $product->description,
             "stock" => $product->stock,
             "price" => $product->price,
+            "enable_variant" => $product->enable_variant,
             "status" => $product->status,
             "images" => $this->getImages($product->images),
             "created_at" => $product->created_at,
@@ -50,14 +51,18 @@ class ProductDetail extends JsonResource
         return $data;
     }
 
-    protected function getCategory($categories)
+    protected function variants($variants)
     {
         $data = [];
 
-        foreach ($categories as $category) {
-            $data[] = $category->modul->name;
+        foreach ($variants as $variant) {
+            $data[] = [
+                "name" => $variant->name,
+                "stock" => $variant->stock,
+                "price" => $variant->price,
+            ];
         }
 
-        return implode(', ', $data);
+        return $data;
     }
 }

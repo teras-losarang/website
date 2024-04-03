@@ -11,6 +11,7 @@
             <x-slot:thead>
                 <th>No</th>
                 <th>Nama Toko</th>
+                <th>Kategori Toko</th>
                 <th>Customer</th>
                 <th>Deskripsi</th>
                 <th>Aksi</th>
@@ -20,6 +21,7 @@
                     <tr>
                         <th>{{ $loop->iteration }}</th>
                         <td>{{ $store->name }}</td>
+                        <td>{{ $store->tags }}</td>
                         <td>{{ $store->user->name }}</td>
                         <td>{{ Str::limit($store->description, 100, '...') }}</td>
                         <td nowrap>

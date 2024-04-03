@@ -56,9 +56,14 @@ class CartController extends Controller
             return TerasMessage::notFound("data not found!");
         }
 
+        if ($product->enable_variant && !$request->has('variant')) {
+            return TerasMessage::warning("please select a variant!");
+        }
+
         $request->merge([
             "user_id" => auth()->user()->id,
-            "amount" => $product->price * $request->qty
+            "amount" => $product->price * $request->qty,
+            "variant" => $request->variant
         ]);
 
         try {
@@ -72,7 +77,11 @@ class CartController extends Controller
 
                 $purchase = $this->purchase->where(["cart_id" => $cart->id, "product_id" => $product->id])->first();
                 if (!$purchase) {
-                    $cart->purchases()->create($request->except(['store_id', 'user_id']));
+                    if ($product->enable_variant) {
+                        $cart->purchases()->create($request->except(['store_id', 'user_id']));
+                    } else {
+                        $cart->purchases()->create($request->except(['store_id', 'user_id', 'variant']));
+                    }
                 } else {
                     $purchase->update($request->except(['store_id', 'user_id']));
                 }

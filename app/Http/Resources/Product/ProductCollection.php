@@ -24,7 +24,6 @@ class ProductCollection extends ResourceCollection
                     "name" => $product->store->name,
                     "customer" => $product->store->user->name,
                 ],
-                "category" => $this->getCategory($product->categories),
                 "name" => $product->name,
                 "slug" => $product->slug,
                 "description" => $product->description,
@@ -52,16 +51,5 @@ class ProductCollection extends ResourceCollection
         }
 
         return $data;
-    }
-
-    protected function getCategory($categories)
-    {
-        $data = [];
-
-        foreach ($categories as $category) {
-            $data[] = $category->modul->name;
-        }
-
-        return implode(', ', $data);
     }
 }

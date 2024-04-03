@@ -43,6 +43,7 @@ class CartCollection extends ResourceCollection
                 "product_price" => $purchase->product->price,
                 "qty" => $purchase->qty,
                 "amount" => $purchase->amount,
+                "variant" => json_decode($purchase->variant),
                 "notes" => $purchase->notes,
             ];
         }
