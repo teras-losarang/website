@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\WEB\DashboardController;
+use App\Http\Controllers\WEB\LoginController;
+use App\Http\Controllers\WEB\LogoutController;
 use App\Http\Controllers\WEB\ModulController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\StoreController;
@@ -21,36 +23,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 Route::name('web.')->group(function () {
-    Route::get('/', DashboardController::class)->name('dashboard.index');
+    Route::get('/login', [LoginController::class, 'index'])->name('login.index')->middleware('guest');
+    Route::post('/login', [LoginController::class, 'process'])->name('login.process')->middleware('guest');
 
-    Route::get('/user', UserController::class)->name('user.index');
-    Route::resource('/user/admin', AdminController::class, ["as" => "user"]);
-    Route::resource('/user/customer', CustomerController::class, ["as" => "user"]);
-    Route::resource('/user/courier', CourierController::class, ["as" => "user"]);
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/', DashboardController::class)->name('dashboard.index');
+        Route::get('/user', UserController::class)->name('user.index');
+        Route::resource('/user/admin', AdminController::class, ["as" => "user"]);
+        Route::resource('/user/customer', CustomerController::class, ["as" => "user"]);
+        Route::resource('/user/courier', CourierController::class, ["as" => "user"]);
 
-    Route::get('/store/{store}/product/create', [StoreController::class, 'productCreate'])
-        ->name('store.product.create');
-    Route::post('/store/{store}/product', [StoreController::class, 'productStore'])
-        ->name('store.product.store');
-    Route::get('/store/{store}/product/{product}/edit', [StoreController::class, 'productEdit'])
-        ->name('store.product.edit');
-    Route::put('/store/{store}/product/{product}', [StoreController::class, 'productUpdate'])
-        ->name('store.product.update');
-    Route::delete('/store/{store}/product/{product}', [StoreController::class, 'productDestroy'])
-        ->name('store.product.destroy');
-    Route::resource('/store', StoreController::class);
+        Route::get('/store/{store}/product/create', [StoreController::class, 'productCreate'])
+            ->name('store.product.create');
+        Route::post('/store/{store}/product', [StoreController::class, 'productStore'])
+            ->name('store.product.store');
+        Route::get('/store/{store}/product/{product}/edit', [StoreController::class, 'productEdit'])
+            ->name('store.product.edit');
+        Route::put('/store/{store}/product/{product}', [StoreController::class, 'productUpdate'])
+            ->name('store.product.update');
+        Route::delete('/store/{store}/product/{product}', [StoreController::class, 'productDestroy'])
+            ->name('store.product.destroy');
+        Route::resource('/store', StoreController::class);
 
-    Route::get('/product/delete-image/{productImage}', [ProductController::class, 'deleteImage'])
-        ->name('product.delete.image');
-    Route::resource('/product', ProductController::class);
+        Route::get('/product/delete-image/{productImage}', [ProductController::class, 'deleteImage'])
+            ->name('product.delete.image');
+        Route::resource('/product', ProductController::class);
 
-    Route::put('/modul/update-status/{modul}', [ModulController::class, 'updateStatus'])
-        ->name('modul.update.status');
-    Route::get('/modul/update-sort/{currentModul}/{nextModul}', [ModulController::class, 'updateSort'])
-        ->name('modul.update.sort');
-    Route::resource('/modul', ModulController::class);
+        Route::put('/modul/update-status/{modul}', [ModulController::class, 'updateStatus'])
+            ->name('modul.update.status');
+        Route::get('/modul/update-sort/{currentModul}/{nextModul}', [ModulController::class, 'updateSort'])
+            ->name('modul.update.sort');
+        Route::resource('/modul', ModulController::class);
+
+        Route::get('/logout', LogoutController::class)->name('logout.process');
+    });
 });

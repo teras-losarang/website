@@ -40,6 +40,7 @@ class StoreController extends Controller
 
     public function search(Request $request)
     {
+        $data = [];
         $stores = $this->store->query();
         $products = $this->product->query();
 
@@ -51,14 +52,31 @@ class StoreController extends Controller
         $stores = $stores->get();
         $products = $products->get();
 
-        $data = [];
-        foreach ($stores as $store) {
-            $data[] = [
-                "store_name" => $store->name
-            ];
+        if ($stores->count() > 0) {
+            foreach ($stores as $key => $store) {
+                $data[] = [
+                    "id" => $store->id,
+                    "name" => $store->name,
+                    "slug" => $store->slug,
+                    "description" => $store->description,
+                    "address" => $store->address,
+                    "longlat" => $store->longlat,
+                    "tags" => $store->tags,
+                ];
+            }
+
+            return TerasMessage::render([
+                'status' => TerasMessage::SUCCESS,
+                'status_code' => TerasMessage::HTTP_OK,
+                'data' => $data
+            ]);
         }
 
-        dd($data);
+        return TerasMessage::render([
+            'status' => TerasMessage::SUCCESS,
+            'status_code' => TerasMessage::HTTP_OK,
+            'data' => $data
+        ]);
     }
 
     public function store(CreateRequest $request)
