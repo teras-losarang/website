@@ -311,7 +311,8 @@ class StoreController extends Controller
 
         $request->merge([
             "price" => str_replace(",", "", $request->price),
-            "store_id" => $store->id
+            "store_id" => $store->id,
+            "enable_variant" => $request->enable_variant ? 1 : 0
         ]);
 
         try {
@@ -322,10 +323,10 @@ class StoreController extends Controller
                     ]);
                 }
             }
-
-            if ($request->has('variant')) {
+            if ($request->enable_variant == 0) {
                 $product->variants()->delete();
-
+            } else {
+                $product->variants()->delete();
                 foreach ($request->variant as $variant) {
                     if ($variant['name']) {
                         $product->variants()->create(array_merge($variant, [
